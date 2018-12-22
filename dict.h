@@ -15,9 +15,10 @@ struct Dict {
 	int (*capacity)(Dict *self);
 	int (*length)(Dict *self);
 	bool (*isEmpty)(Dict *self);
+	bool (*isFull)(Dict *self);
 	int (*contains)(Dict *self, void *key);
 	void *(*get)(Dict *self, void *key);
-	void *(*getKeyByIndex)(Dict *self, int index);
+	void *(*getKey)(Dict *self, int index);
 	//Setters
 	void (*set)(Dict *self, void *key, void *value);
 };
@@ -39,11 +40,12 @@ Dict *newDict(void *key, void *value);
 int __getDictCapacity__(Dict *self);
 int __getDictLength__(Dict *self);
 bool __isEmptyDict__(Dict *self);
+bool __isFullDict__(Dict *self);
 //Returns the index (a nonnegative number) of the entry with the same key
 //otherwise, returns a negative value if the key is not currently in the dictionary
 int __contains__(Dict *self, void *key);
 void *__get__(Dict *self, void *key);
-void *__getKeyByIndex__(Dict *self, int index);
+void *__getKey__(Dict *self, int index);
 
 
 /******************************Setters******************************/

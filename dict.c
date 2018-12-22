@@ -12,7 +12,7 @@ void __printDict__(Dict *self) {
 	printf("[");
 
 	for(int i = 0; i < self->length(self); i++) {
-		void *key = self->getKeyByIndex(self, i);
+		void *key = self->getKey(self, i);
 		//Temporary, already assuming that the keys are strings
 		//and the values are integers
 		printf("(%s, %d), ", key, *(int *)self->get(self, key));
@@ -28,7 +28,7 @@ void __replace__(Dict *self, int index, void *value) { self->__values__[index] =
 
 /******************************Constructors******************************/
 Dict *newDict(void *key, void *value) {
-	Dict *self;
+	Dict *self = malloc(sizeof(Dict *));
 
 	self->__capacity__ = 5;
 	self->__length__ = 0;
@@ -43,9 +43,10 @@ Dict *newDict(void *key, void *value) {
 	self->length = __getDictLength__;
 	self->capacity = __getDictCapacity__;
 	self->isEmpty = __isEmptyDict__;
-	self->getKeyByIndex = __getKeyByIndex__;
+	self->isFull = __isFullDict__;
 	self->contains = __contains__;
 	self->get = __get__;
+	self->getKey = __getKey__;
 	//Setters
 	self->set = __set__;
 
@@ -55,34 +56,36 @@ Dict *newDict(void *key, void *value) {
 }
 
 /******************************Getters******************************/
-int __getDictLength__(Dict *self) { return self->__length__; }
 int __getDictCapacity__(Dict *self) { return self->__capacity__; }
+int __getDictLength__(Dict *self) { return self->__length__; }
 bool __isEmptyDict__(Dict *self) { return self->length(self) == 0; }
+bool __isFullDict__(Dict *self) { return self->length(self) == self->capacity(self); }
 
-void *__getKeyByIndex__(Dict self, int index) {
-	if(index >= self.length(self))
+void *__getKey__(Dict *self, int index) {
+	if(index >= self->length(self))
 		return NULL;
 
-	return *(self.__keys__ + index);
+	return self->__keys__[index];
 }
 
-int __contains__(Dict self, void *key) {
+int __contains__(Dict *self, void *key) {
 	//If it's empty, it won't clearly won't have a matching key
-	if(self.isEmpty(self))
+	if(self->isEmpty(self))
 		return -1;
 
-	for(int i = 0; i < *self.__length__; i++) {
-		if( *(self.__keys__ + i) == key)
+	for(int i = 0; i < self->length(self); i++) {
+		if( self->__keys__[i] == key)
 			return i;
 	}
+
 	return -1;
 }
 
-void *__get__(Dict self, void *key) {
-	int index = self.contains(self, key);
+void *__get__(Dict *self, void *key) {
+	int index = self->contains(self, key);
 
 	if(	index >= 0)
-		return *(self.__values__ + index);
+		return self->__values__[index];
 
 	return NULL;
 }
@@ -92,8 +95,6 @@ void *__get__(Dict self, void *key) {
 void __set__(Dict *self, void *key, void *value) {
 	int index = self->contains(self, key);
 
-	printf("Index: %d\n", index);
-
 	if( index >= 0) {
 		__replace__(self, index, value);
 		return;
@@ -102,13 +103,9 @@ void __set__(Dict *self, void *key, void *value) {
 	if(self->length(self) >= self->capacity(self))
 		__grow__(self);
 
-	self->__keys__[index] = key;
+	self->__keys__[self->length(self)] = key;
+	self->__values__[self->length(self)] = value;
 
-	self->__keys__ + index = *key;
-
-
-	*(self.__keys__ + self.length(self)) = key;
-	*(self.__values__ + self.length(self)) = value;
-
-	*self.__length__ += 1;
+	//Incremenets the size of the dictionary
+	self->__length__++;
 }
