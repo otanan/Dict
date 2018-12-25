@@ -11,8 +11,14 @@ struct Dict {
 	void **__values__;
 	//"METHODS"
 	//Interfacing
-	void (*setKeyComparator)(Dict *self, bool (*__keyComparator__)(Dict *self, void *key1, void *key2));
-	bool (*__keyComparator__)(Dict *self, void *key1, void *key2);
+	void (*setKeyComparator)(Dict *self, bool (*__keyComparator__)(void *key1, void *key2));
+	bool (*__keyComparator__)(void *key1, void *key2);
+	
+	void (*setKeyToString)(Dict *self, void (*__keyToString__)(void *key, char *string));
+	void (*__keyToString__)(void *key, char *string);
+
+	void (*setValueToString)(Dict *self, void (*__valueToString__)(void *value, char *string));
+	void (*__valueToString__)(void *value, char *string);
 	//General Functionality
 	void (*print)(Dict *self);
 	//Getters
@@ -32,9 +38,18 @@ struct Dict {
 /******************************Interfacing******************************/
 //Sets the __keyComparator__ in the dictionary, in case a custom one is written
 //Analogous to interfaces in Java
-void __setKeyComparator__(Dict *self, bool (*__keyComparator)(Dict *self, void *key1, void *key2));
+void __setKeyComparator__(Dict *self, bool (*__keyComparator__)(void *key1, void *key2));
 //Default implemented keyComparator, used to check if a key is in the dictionary
-bool __keyComparator__(Dict *self, void *key1, void *key2);
+bool __keyComparator__(void *key1, void *key2);
+
+void __setKeyToString__(Dict *self, void (*__keyToString__)(void *key, char *string));
+//Default converter for keys to strings
+//Default behavior is to convert the address of the pointer pointing to the
+//key and value to a string
+void __keyToString__(void *key, char *string);
+
+void __setValueToString__(Dict *self, void(*__valueToString__)(void *value, char *string));
+void __valueToString__(void *value, char *string);
 
 
 /******************************General Functionality******************************/

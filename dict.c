@@ -3,6 +3,10 @@
 #include <string.h>
 #include "dict.h"
 
+#ifndef MAX_LINE_LENGTH
+#define MAX_LINE_LENGTH 1000
+#endif
+
 /******************************Constructors******************************/
 Dict *newDict() {
 	Dict *self = malloc(sizeof(Dict));
@@ -20,6 +24,12 @@ Dict *newDict() {
 	//Interfacing
 	self->setKeyComparator = __setKeyComparator__;
 	self->__keyComparator__ = __keyComparator__;
+
+	self->setKeyToString = __setKeyToString__;
+	self->__keyToString__ = __keyToString__;
+
+	self->setValueToString = __setValueToString__;
+	self->__valueToString__ = __valueToString__;
 	//General Functionality
 	self->print = __printDict__;
 	//Getters
@@ -37,8 +47,14 @@ Dict *newDict() {
 }
 
 /******************************Interfacing******************************/
-void __setKeyComparator__(Dict *self, bool (*__keyComparator__)(Dict *self, void *key1, void *key2)) { self->__keyComparator__ = __keyComparator__; }
-bool __keyComparator__(Dict *self, void *key1, void *key2) { return key1 == key2; }
+void __setKeyComparator__(Dict *self, bool (*__keyComparator__)(void *key1, void *key2)) { self->__keyComparator__ = __keyComparator__; }
+bool __keyComparator__(void *key1, void *key2) { return key1 == key2; }
+
+void __setKeyToString__(Dict *self, void (*__keyToString__)(void *key, char *string)) { self->__keyToString__ = __keyToString__; }
+void __keyToString__(void *key, char *string) { sprintf(string, "%d", (int)key); }
+
+void __setValueToString__(Dict *self, void (*__valueToString__)(void *value, char *string)) { self->__valueToString__ = __valueToString__; }
+void __valueToString__(void *value, char *string) { sprintf(string, "%d", (int)value); }
 
 
 /******************************General Functionality******************************/
@@ -48,13 +64,18 @@ void __printDict__(Dict *self) {
 		return;
 	}
 
-	printf("[");
+	char keyString[MAX_LINE_LENGTH], valueString[MAX_LINE_LENGTH];
 
+	printf("[");
 	for(int i = 0; i < self->length(self); i++) {
+		//Uses custom implementation of toString functions
+		//if implemented, otherwises defaults
 		void *key = self->getKey(self, i);
-		//Temporary, already assuming that the keys are strings
-		//and the values are integers
-		printf("(%s, %d), ", key, *(int *)self->get(self, key));
+
+		self->__keyToString__(key, keyString);
+		self->__valueToString__(self->get(self, key), valueString);
+
+		printf("(%s, %s), ", keyString, valueString);
 	}
 
 	printf("\b\b]\n");
@@ -92,7 +113,7 @@ int __contains__(Dict *self, void *key) {
 
 	for(int i = 0; i < self->length(self); i++) {
 		//Uses the implemented keyComparator to check if the keys match
-		if(self->__keyComparator__(self, self->__keys__[i], key))
+		if(self->__keyComparator__(self->__keys__[i], key))
 			return i;
 	}
 
