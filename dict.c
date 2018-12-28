@@ -32,10 +32,10 @@ static void print_dict(Dict *self);
 //Hidden helper function used to increase the size of dictionaries
 //once they've reached their limit
 static void grow(Dict *self);
-static void replaceValue(Dict *self, int index, void *value);
+static void replace_value(Dict *self, int index, void *value);
 /******************************Getters******************************/
-static int get_dict_capacity(Dict *self);
-static int get_dict_length(Dict *self);
+static int capacity(Dict *self);
+static int length(Dict *self);
 static bool is_empty_dict(Dict *self);
 static bool is_full_dict(Dict *self);
 //Returns the index (a nonnegative number) of the entry with the same key
@@ -76,8 +76,8 @@ Dict *newDict() {
 	//General Functionality
 	self->print 				= print_dict;
 	//Getters
-	self->length 				= get_dict_length;
-	self->capacity 				= get_dict_capacity;
+	self->length 				= length;
+	self->capacity 				= capacity;
 	self->is_empty 				= is_empty_dict;
 	self->is_full 				= is_full_dict;
 	self->contains 				= contains;
@@ -134,11 +134,11 @@ static void grow(Dict *self) {
 	self->__values__ = realloc(self->__values__, mem_needed);
 }
 
-static void replaceValue(Dict *self, int index, void *value) { self->__values__[index] = value; }
+static void replace_value(Dict *self, int index, void *value) { self->__values__[index] = value; }
 
 /******************************Getters******************************/
-static int get_dict_capacity(Dict *self) { return self->__capacity__; }
-static int get_dict_length(Dict *self) { return self->__length__; }
+static int capacity(Dict *self) { return self->__capacity__; }
+static int length(Dict *self) { return self->__length__; }
 static bool is_empty_dict(Dict *self) { return self->length(self) == 0; }
 static bool is_full_dict(Dict *self) { return self->length(self) == self->capacity(self); }
 
@@ -180,7 +180,7 @@ static void set(Dict *self, void *key, void *value) {
 	int index = self->contains(self, key);
 
 	if(index >= 0) {
-		replaceValue(self, index, value);
+		replace_value(self, index, value);
 		return;
 	}
 
