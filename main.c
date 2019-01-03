@@ -1,50 +1,46 @@
+/*
+*Filename: 		main.c
+*Author: 		Jonathan Delgado
+*Description: 	Source of entry for testing the dictionary
+*/
+
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "dict.h"
-//Need to fix logic of pointers or pointers of pointers
-//Consider hashing?
-//Organize functions
-//Implement type checking with generics
-//Consider implementing memcpy in values as well, instead of just keys
-//Check malloc/realloc calls
 
 static void key_to_string(void *key, char *string);
 static void key_to_string(void *key, char *string) {
 	int len = strlen((char *) key) + 1;
     memcpy(string, key, len);
 }
+static bool key_comparator(void *key1, void *key2) {
+	return !strcmp((char *)key1, (char *)key2);
+}
 
+void hello_world(void);
+void hello_world() {
+	printf("Hello world!\n");
+}
+
+struct func_holder {
+	void (*function)();
+};
 
 int main() {
 	Dict *dict = newDict();
 	dict->set_key_to_string(dict, key_to_string);
+	dict->set_key_comparator(dict, key_comparator);
 
-	char *label = "first";
-	char *label2 = "second";
-	char *label3 = "third";
-	char *label4 = "fourth";
-	char *label5 = "fifth";
-	char *label6 = "ACCESSED WRONG";
-
-
-	int x = 10;
-	int y = 2;
-	int z = -1;
-	int a = 1;
-	int b = 24328472;
-	dict->set(dict, label, &x);
-	dict->set(dict, label2, &y);
-	dict->set(dict, label3, &z);
-	dict->set(dict, label4, &a);
-	dict->set(dict, label5, &b);
-	dict->set(dict, label6, &x);
-	//
-	//
-	
+	char *label = "Helloworldfunc";
+	dict->set(dict, label, hello_world);
 
 	dict->print(dict);
 
+	struct func_holder func_holder = {dict->get(dict, label)};
+
+	func_holder.function();
 
 	return 0;
 }

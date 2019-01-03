@@ -1,3 +1,10 @@
+/*
+*Filename: 		dict.c
+*Author: 		Jonathan Delgado
+*Description: 	Dictionary program implementation for having basic
+*				dictionary functionality in C
+*/
+
 /******************************Include******************************/
 #include <stdio.h>
 #include <stdlib.h>
@@ -11,26 +18,76 @@
 //since determining the size of a void pointer is non-trivial
 #define KEY_SIZE 64
 
-/******************************Prototypes******************************/
+/******************************PROTOTYPES******************************/
+
 /******************************Interfacing******************************/
-//Sets the key_comparator in the dictionary, in case a custom one is written
-//Analogous to interfaces in Java
-static void set_key_comparator(Dict *self, bool (*key_comparator)(void *key1, void *key2));
-//Default implemented key_comparator, used to check if a key is in the dictionary
+
+/*
+*Function: set_key_operator
+*-----------------------------
+*Sets the key_comparator in the dictionary, in case a custom one is written.
+*Analogous to interfaces in Java
+*
+*self:				the dictionary struct
+*key_comparator: 	function pointer containing overridden functionality
+*
+*returns: 			void
+*/
+static void set_key_comparator(
+	Dict *self,
+	bool (*key_comparator)(void *key1, void *key2)
+);
+
+
+/*
+*Function: key_comparator
+*-----------------------------
+*New key_comparator functionality the dictionary uses to do key checking
+*
+*key1: 		the first key for comparison
+*key2: 		the second key for comparison
+*
+*returns: 	returns a boolean representing whether the keys are equal
+*/
 static bool key_comparator(void *key1, void *key2);
 
-static void set_key_to_string(Dict *self, void (*key_to_string)(void *key, char *string));
-//Default converter for keys to strings
-//Default behavior is to convert the address of the pointer pointing to the
-//key and value to a string
+static void set_key_to_string(
+	Dict *self,
+	void (*key_to_string)(void *key, char *string)
+);
+
+
+/*
+*Function: key_to_string
+*-----------------------------
+*New functionality for converting keys to strings for printing
+*
+*key: 		the key to be associated
+*string: 	a pointer to the location where the string is to be stored
+*
+*returns: 	void
+*/
 static void key_to_string(void *key, char *string);
 
-static void set_value_to_string(Dict *self, void(*value_to_string)(void *value, char *string));
+static void set_value_to_string(
+	Dict *self,
+	void (*value_to_string)(void *value, char *string)
+);
 static void value_to_string(void *value, char *string);
-/******************************General Functionality******************************/
+/****************************General Functionality****************************/
 static void print_dict(Dict *self);
-//Hidden helper function used to increase the size of dictionaries
-//once they've reached their limit
+
+
+/*
+*Function: grow
+*-----------------------------
+*Helper function that is called when set detects that the dictitonary
+*is a maximum capacity. Serves to increase the size of the dictionary
+*
+*self: 		the dictionary to be increased in size
+*
+*returns: 	void
+*/
 static void grow(Dict *self);
 static void replace_value(Dict *self, int index, void *value);
 /******************************Getters******************************/
@@ -38,10 +95,32 @@ static int capacity(Dict *self);
 static int length(Dict *self);
 static bool is_empty_dict(Dict *self);
 static bool is_full_dict(Dict *self);
-//Returns the index (a nonnegative number) of the entry with the same key
-//otherwise, returns a negative value if the key is not currently in the dictionary
+
+/*
+*Function: contains
+*-----------------------------
+*Searches for the location of a particular key in the dictionary
+*
+*self: 	the dictionary to be searched in
+*key: 	the key to be searched for
+*
+*returns: 	index (nonnegative number) of the entry with the same key
+*			returns -1 if the key is not found in the dictionary 
+*/
 static int contains(Dict *self, void *key);
-//Returns a NULL pointer on failure to find the value with corresponding key
+
+
+/*
+*Function: get
+*-----------------------------
+*Gets the value corresponding to the particular key in the dictionary
+*
+*self: 	the dictionary to be searched in
+*key: 	the key to be matched
+*
+*returns: 	a void pointer pointing to the value
+*			returns NULL if the key is not in the dictionary
+*/
 static void *get(Dict *self, void *key);
 static void *get_key_by_index(Dict *self, int index);
 
@@ -49,7 +128,10 @@ static void *get_key_by_index(Dict *self, int index);
 /******************************Setters******************************/
 static void set(Dict *self, void *key, void *value);
 
-/******************************End Prototypes******************************/
+/******************************END PROTOTYPES******************************/
+
+
+
 /******************************Constructors******************************/
 Dict *newDict() {
 	Dict *self = malloc(sizeof(Dict));
@@ -100,7 +182,7 @@ static void set_value_to_string(Dict *self, void (*value_to_string)(void *value,
 static void value_to_string(void *value, char *string) { sprintf(string, "%p", (int *)value); }
 
 
-/******************************General Functionality******************************/
+/****************************General Functionality****************************/
 static void print_dict(Dict *self) {
 	if(self->is_empty(self)) {
 		printf("Empty dictionary\n");
