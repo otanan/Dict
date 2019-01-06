@@ -5,7 +5,12 @@ OBJECTS = main.o dict.o
 
 #main is used for testing purposes
 main : $(OBJECTS)
-	$(CC) $@ -o $^
+	@echo "Linking object files..."
+	$(CC) -o $@ $^
+
+main.o : main.c
+	@echo "Compiling main module..."
+	$(CC) $(CFLAGS) -c $^
 
 #dict.o is used for exporting as a library object file
 dict : dict.c
